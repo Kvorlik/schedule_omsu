@@ -51,6 +51,13 @@ keyboard = {
                     "label": "Преподаватель"
                 },
                 "color": "positive"
+            },{
+                "action": {
+                    "type": "text",
+                    "payload": "{\"button\": \"2\"}",
+                    "label": "Помощь"
+                },
+                "color": "primary"
             }]
     ]
 }
@@ -83,23 +90,43 @@ for event in longpoll.listen():
             request = event.text
             botStudent = VkBotStudent(event.user_id)
             botTeacher = VkBotTeacher(event.user_id)
+
             if request.lower() in role:
                 choise = request.lower()
                 write_msg(event.user_id, ('Вы выбрали категорию ' + choise))
                 users_role[event.user_id] = choise
-
             elif request.lower().startswith('на'):
                 try:
                     if users_role[event.user_id] == 'студент':
-                        write_msg(event.user_id, botStudent.new_message(event.text))
+                        write_msg(event.user_id, botStudent.new_message(request))
                     elif users_role[event.user_id] == 'преподаватель':
-                        write_msg(event.user_id, botTeacher.new_message(event.text))
+                        write_msg(event.user_id, botTeacher.new_message(request))
                 except KeyError:
                     write_msg(event.user_id, 'Вы не выбрали категорию(Студент/Преподаватель).')
-            elif event.text[:10] == ('Расписание'):
+            elif request[:10].lower() == 'расписание':
                 if users_role[event.user_id] == 'студент':
-                    write_msg(event.user_id, botStudent.new_message(event.text))
+                    write_msg(event.user_id, botStudent.new_message(request))
                 elif users_role[event.user_id] == 'преподаватель':
-                    write_msg(event.user_id, botTeacher.new_message(event.text))
+                    write_msg(event.user_id, botTeacher.new_message(request))
+            elif request[:15].lower() == 'изменить группу':
+                try:
+                    if users_role[event.user_id] == 'студент':
+                        write_msg(event.user_id, botStudent.new_message(request))
+                    elif users_role[event.user_id] == 'преподаватель':
+                        write_msg(event.user_id, botTeacher.new_message(request))
+                except KeyError:
+                    write_msg(event.user_id, 'Вы не выбрали категорию(Студент/Преподаватель).')
+            elif request[:22].lower() == 'изменить преподавателя':
+                try:
+                    if users_role[event.user_id] == 'студент':
+                        write_msg(event.user_id, botStudent.new_message(request))
+                    elif users_role[event.user_id] == 'преподаватель':
+                        write_msg(event.user_id, botTeacher.new_message(request))
+                except KeyError:
+                    write_msg(event.user_id, 'Вы не выбрали категорию(Студент/Преподаватель).')
+            elif request == 'Помощь':
+                write_msg(event.user_id, 'Если вы хотите изменить имя группы или преподователя, '
+                                         'напишите следующее: \nИзменить группу ИМЯ-ГРУППЫ или'
+                                         '\nИзменить преподавателя Фамилия И.О.')
             else:
                 write_msg(event.user_id, 'Я вас не понимаю.')

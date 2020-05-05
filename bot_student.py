@@ -13,7 +13,7 @@ class VkBotStudent:
         self._USER_ID = user_id
 
         self._COMMANDS = ["Начать", "Расписание", "На сегодня",
-                          "На завтра", "На неделю"]
+                          "На завтра", "На неделю", "Изменить группу"]
 
     def registrationUser(self, message):
         nmGroup = message[11:].upper()
@@ -77,6 +77,22 @@ class VkBotStudent:
         con.close()
         return rows[0][0]
 
+    def changeGroupUser(self, group):
+        con = pymysql.Connect('localhost', 'root', '', 'schedule')
+        cur = con.cursor()
+        cur.execute(f'SELECT schedule.group FROM schedule WHERE schedule.group = "{group}"')
+        rows = cur.fetchall()
+        if rows:
+            cur.execute(f'UPDATE users SET users.nameGroup = "{group}" WHERE users.userId = {self._USER_ID}')
+            con.commit()
+            cur.close()
+            con.close()
+            return 'Вы успешно изменили группу.'
+        else:
+            cur.close()
+            con.close()
+            return 'Такой группы в базе нет. Попробуйте еще раз.'
+
     def new_message(self, message):
         if message == self._COMMANDS[0]:
             if self.checkUser():
@@ -97,6 +113,13 @@ class VkBotStudent:
             # На неделю
             elif message == self._COMMANDS[4]:
                 return self._get_sсhedule_week(self.selectGroupUser())
+
+            elif message[:15] == self._COMMANDS[5]:
+                return self.changeGroupUser(message[16:])
+
+            elif message[:22] == 'Изменить преподавателя':
+                print("qweqweqe")
+                return 'Выберите режит "Преподаватель".'
 
             elif message == 'Студент' or 'Преподаватель':
                 return None

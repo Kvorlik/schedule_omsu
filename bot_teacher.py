@@ -13,8 +13,7 @@ class VkBotTeacher:
         self._USER_ID = user_id
 
         self._COMMANDS = ["Начать", "Расписание", "На сегодня",
-                          "На завтра", "На неделю", "Искать по группе",
-                          "Искать по преподавателю"]
+                          "На завтра", "На неделю", "Изменить преподавателя"]
 
     def registrationUser(self, message):
         nmTeacher = message[11:]
@@ -77,6 +76,22 @@ class VkBotTeacher:
         con.close()
         return rows[0][0]
 
+    def changeTeacherUser(self, teacher):
+        con = pymysql.Connect('localhost', 'root', '', 'schedule')
+        cur = con.cursor()
+        cur.execute(f'SELECT teachers.shortname FROM teachers WHERE teachers.shortname = "{teacher}"')
+        rows = cur.fetchall()
+        if rows:
+            cur.execute(f'UPDATE users SET users.nameTeacher = "{teacher}" WHERE users.userId = {self._USER_ID}')
+            con.commit()
+            cur.close()
+            con.close()
+            return 'Вы успешно изменили преподавателя.'
+        else:
+            cur.close()
+            con.close()
+            return 'Такого преподавателя в базе нет. Попробуйте еще раз.'
+
     def new_message(self, message):
         if message == self._COMMANDS[0]:
             if self.checkUser():
@@ -96,6 +111,12 @@ class VkBotTeacher:
             # На неделю
             elif message == self._COMMANDS[4]:
                 return self._get_sсhedule_week(self.selectTeacherUser())
+
+            elif message[:22] == self._COMMANDS[5]:
+                return self.changeTeacherUser(message[23:])
+
+            elif message[:15] == "Изменить группу":
+                return 'Выберите режим "Студент".'
 
             else:
                 return 'Я вас не понимаю'
