@@ -119,7 +119,7 @@ class VkBotStudent:
 
             elif message[:22] == 'Изменить преподавателя':
                 print("qweqweqe")
-                return 'Выберите режит "Преподаватель".'
+                return 'Выберите режим "Преподаватель".'
 
             elif message == 'Студент' or 'Преподаватель':
                 return None
